@@ -68,9 +68,6 @@ const SHELTERS = [
 const TORNADO_PATH = [
   [42.2400, -83.1850], [42.2550, -83.1550], [42.2700, -83.1200],
   [42.2850, -83.0950], [42.2980, -83.0700], [42.3100, -83.0500],
-  [42.3300, -83.0300], [43.0000, -82.0000], [44.0000, -79.0000],
-  [45.0000, -74.0000], [45.5000, -68.0000], [46.0000, -55.0000],
-  [47.0000, -35.0000], [48.0000, -20.0000], [49.0000, -10.0000],
 ]
 
 const ROUTE_TO_SHELTER = [
@@ -87,7 +84,7 @@ const LANGUAGES = [
 ]
 
 // ── MAP CONTROLLER ──────────────────────────────────────────────
-function MapController({ simulating, tornadoPos, showTornadoFocus }) {
+function MapController({ simulating, tornadoPos, showTornadoFocus, showUserFocus }) {
   const map = useMap()
   useEffect(() => {
     if (!simulating) {
@@ -101,9 +98,14 @@ function MapController({ simulating, tornadoPos, showTornadoFocus }) {
       return
     }
 
+    if (showUserFocus) {
+      map.flyTo(WINDSOR_CENTER, 13, { duration: 1.6 })
+      return
+    }
+
     const routeCenter = ROUTE_TO_SHELTER[Math.floor(ROUTE_TO_SHELTER.length / 2)]
     map.flyTo(routeCenter || WINDSOR_CENTER, 11, { duration: 1.6 })
-  }, [simulating, tornadoPos, showTornadoFocus, map])
+  }, [simulating, tornadoPos, showTornadoFocus, showUserFocus, map])
   return null
 }
 
@@ -114,6 +116,7 @@ export default function MainDashboard() {
   const [tornadoPos, setTornadoPos]     = useState(0)
   const [timeElapsed, setTimeElapsed]   = useState(0)
   const [showTornadoFocus, setShowTornadoFocus] = useState(false)
+  const [showUserFocus, setShowUserFocus] = useState(false)
   const [selectedLang, setSelectedLang] = useState(LANGUAGES[0])
   const [showLangMenu, setShowLangMenu] = useState(false)
   const intervalRef = useRef(null)
@@ -137,11 +140,13 @@ export default function MainDashboard() {
     setTornadoPos(0)
     setTimeElapsed(0)
     setShowTornadoFocus(true)
+    setShowUserFocus(false)
 
     clearTimeout(focusTimeoutRef.current)
     focusTimeoutRef.current = window.setTimeout(() => {
       setShowTornadoFocus(false)
-    }, 6000)
+      setShowUserFocus(true)
+    }, 4000)
 
     intervalRef.current = setInterval(() => {
       setTornadoPos(p => Math.min(p + 1, TORNADO_PATH.length - 1))
@@ -420,7 +425,12 @@ export default function MainDashboard() {
               url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
               attribution='&copy; <a href="https://carto.com/">CARTO</a>'
             />
-            <MapController simulating={simulating} tornadoPos={tornadoPos} showTornadoFocus={showTornadoFocus} />
+            <MapController
+              simulating={simulating}
+              tornadoPos={tornadoPos}
+              showTornadoFocus={showTornadoFocus}
+              showUserFocus={showUserFocus}
+            />
 
             {/* User */}
             <Marker position={WINDSOR_CENTER} icon={userIcon}>
