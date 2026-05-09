@@ -68,7 +68,7 @@ export default function Setup() {
   }
 
   function handleSubmit() {
-    if (!profile.name || !profile.address) return
+    if (!profile.name || !profile.height || !profile.weight) return
     const calc = calculateEvacuation(profile)
     setResults(calc)
     localStorage.setItem('vortex_profile', JSON.stringify({ ...profile, score }))
@@ -283,7 +283,7 @@ export default function Setup() {
                   ⚠ Slower evacuation speed factored in
                 </div>
               )}
-              {!profile.hasCar && (
+              {profile.travelMode === 'foot' && (
                 <div style={{ color: '#FFB347', fontSize: '0.75rem' }}>
                   ⚠ Walking routes + transit shelters prioritized
                 </div>
