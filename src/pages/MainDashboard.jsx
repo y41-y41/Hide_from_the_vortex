@@ -65,7 +65,6 @@ const SHELTERS = [
   { id: 2, name: 'St. Clair College', coords: [42.2993, -83.0202], address: '2000 Talbot Rd W', capacity: 600,  status: 'full' },
   { id: 3, name: 'WFCU Centre',     coords: [42.2756, -83.0022], address: '8787 McHugh St',   capacity: 1200, status: 'full' },
 ]
-
 const TORNADO_PATH = [
   [42.2450, -83.1800], [42.2650, -83.1400], [42.2900, -83.1000],
   [42.3100, -83.0700], [42.3300, -83.0400],
