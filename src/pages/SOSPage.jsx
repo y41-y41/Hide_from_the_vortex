@@ -13,9 +13,9 @@ const recipients = [
 export default function SOSPage() {
   const [selectedLanguage, setSelectedLanguage] = useState('English')
   const [showLanguageMenu, setShowLanguageMenu] = useState(false)
-  const [sentStatuses, setSentStatuses] = useState<boolean[]>(new Array(recipients.length).fill(false))
+  const [sentStatuses, setSentStatuses] = useState(new Array(recipients.length).fill(false))
   const [sendingIndex, setSendingIndex] = useState(0)
-  const [logs, setLogs] = useState<string[]>([])
+  const [logs, setLogs] = useState([])
 
   useEffect(() => {
     if (sendingIndex < recipients.length) {

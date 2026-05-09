@@ -34,7 +34,7 @@ export default function MainDashboard() {
   const [eta, setEta] = useState(0)
   const [selectedLanguage, setSelectedLanguage] = useState('English')
   const [showLanguageMenu, setShowLanguageMenu] = useState(false)
-  const [flashingTranslations, setFlashingTranslations] = useState<string[]>([])
+  const [flashingTranslations, setFlashingTranslations] = useState([])
 
   const simulateTornado = () => {
     setTornadoSimulating(true)
