@@ -25,7 +25,7 @@ function calcScore(profile) {
 }
 
 function calculateEvacuation(profile) {
-  const distance = 6.2 // km to local shelter estimate
+  const distance = 6.2 // km to local building estimate
   let speed = profile.travelMode === 'car' ? 45 : 5 // km/h
   if (profile.mobility === 'wheelchair') speed = 3.2
   if (profile.mobility === 'elderly')    speed = Math.min(speed, 4.5)
@@ -128,7 +128,7 @@ export default function Setup() {
               Calculate evacuation time
             </h1>
             <p style={{ fontSize: '0.85rem', color: '#7B9BB5', lineHeight: 1.6 }}>
-              Enter your profile to see estimated time to nearest shelter, speed, and distance.
+              Enter your profile to see estimated time to nearest building, speed, and distance.
             </p>
           </div>
 
@@ -242,9 +242,9 @@ export default function Setup() {
           {results && (
             <div className="card">
               <h2>Evacuation Estimate</h2>
-              <p>Distance to nearest shelter: {results.distance} km</p>
+              <p>Distance to nearest building: {results.distance} km</p>
               <p>Estimated speed: {results.speed} km/h</p>
-              <p>Time to shelter: {results.time} minutes</p>
+              <p>Time to building: {results.time} minutes</p>
             </div>
           )}
         </div>
@@ -253,7 +253,7 @@ export default function Setup() {
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', paddingTop: '1rem' }}>
           <div className="card" style={{ width: '100%', textAlign: 'center' }}>
             <div style={{ fontSize: '0.65rem', letterSpacing: '0.15em', color: '#7B9BB5', marginBottom: '1rem' }}>
-              SHELTER ACCESS PREVIEW
+              BUILDING ACCESS PREVIEW
             </div>
 
             <HumanoidFigure
@@ -285,7 +285,7 @@ export default function Setup() {
               )}
               {profile.travelMode === 'foot' && (
                 <div style={{ color: '#FFB347', fontSize: '0.75rem' }}>
-                  ⚠ Walking routes + transit shelters prioritized
+                  ⚠ Walking routes + transit buildings prioritized
                 </div>
               )}
               {profile.groundFloor && (
@@ -301,8 +301,8 @@ export default function Setup() {
             <div style={{ fontSize: '0.65rem', letterSpacing: '0.12em', marginBottom: '0.75rem' }}>
               HOW THE SCORE WORKS
             </div>
-            The AI estimates how likely you are to reach a safe shelter based on <span style={{color:'#0FADA0'}}>your profile</span>,{' '}
-            <span style={{color:'#0FADA0'}}>travel mode</span>, <span style={{color:'#0FADA0'}}>time to shelter</span>, and{' '}
+            The AI estimates how likely you are to reach a safe building based on <span style={{color:'#0FADA0'}}>your profile</span>,{' '}
+            <span style={{color:'#0FADA0'}}>travel mode</span>, <span style={{color:'#0FADA0'}}>time to building</span>, and{' '}
             <span style={{color:'#0FADA0'}}>evacuation difficulty</span>. Higher score = faster access. Lower score = the system recommends sheltering in place.
           </div>
         </div>

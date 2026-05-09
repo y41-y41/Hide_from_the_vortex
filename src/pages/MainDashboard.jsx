@@ -30,10 +30,10 @@ function makePin(color, emoji) {
   })
 }
 
-// Green pin for open shelters
-const openShelterIcon = makePin('#22c55e', '🏠')
-// Red pin for full shelters
-const fullShelterIcon = makePin('#ef4444', '🏠')
+// Green pin for available buildings
+const openShelterIcon = makePin('#22c55e', '🏢')
+// Red pin for full buildings
+const fullShelterIcon = makePin('#ef4444', '🏢')
 // Default blue Leaflet-style pin for user
 const userIcon = L.divIcon({
   className: '',
@@ -65,7 +65,7 @@ const tornadoIcon = L.divIcon({
 // ── DATA ────────────────────────────────────────────────────────
 const WINDSOR_CENTER = [42.2828, -83.0286]
 
-const SHELTERS = [
+const BUILDINGS = [
   { id: 1, name: 'Lasalle Civic Centre', coords: [42.2195, -83.0652], address: '5950 Malden Rd', capacity: 850, status: 'available' },
   { id: 2, name: 'St. Clair College',    coords: [42.3210, -82.9600], address: '2000 Talbot Rd W', capacity: 600, status: 'full' },
   { id: 3, name: 'WFCU Centre',          coords: [42.2600, -83.0700], address: '8787 McHugh St',   capacity: 1200, status: 'full' },
@@ -77,7 +77,7 @@ const TORNADO_PATH = [
   [42.3550, -82.9700], [42.3650, -82.9500],
 ]
 
-const ROUTE_TO_SHELTER = [
+const ROUTE_TO_BUILDING = [
   [42.2828, -83.0286], [42.2750, -83.0380], [42.2600, -83.0500], [42.2420, -83.0600], [42.2195, -83.0652],
 ]
 
@@ -110,7 +110,7 @@ function MapController({ simulating, tornadoPos, showTornadoFocus, showUserFocus
       return
     }
 
-    const routeCenter = ROUTE_TO_SHELTER[Math.floor(ROUTE_TO_SHELTER.length / 2)]
+    const routeCenter = ROUTE_TO_BUILDING[Math.floor(ROUTE_TO_BUILDING.length / 2)]
     map.flyTo(routeCenter || WINDSOR_CENTER, 11, { duration: 1.6 })
   }, [simulating, tornadoPos, showTornadoFocus, showUserFocus, map])
   return null
@@ -130,7 +130,7 @@ export default function MainDashboard() {
   const focusTimeoutRef = useRef(null)
 
   const profile = (() => { try { return JSON.parse(localStorage.getItem('vortex_profile') || '{}') } catch { return {} } })()
-  const nearestShelter = SHELTERS.find(s => s.status === 'available')
+  const nearestBuilding = BUILDINGS.find(s => s.status === 'available')
 
   function handleSimulate() {
     if (simulating) {
@@ -306,15 +306,15 @@ export default function MainDashboard() {
             )}
           </div>
 
-          {/* Nearest open shelter */}
+          {/* Nearest available building */}
           <div style={card()}>
             <div style={{ fontSize:'0.58rem', letterSpacing:'0.14em', color:'#7B9BB5', marginBottom:'7px' }}>
-              NEAREST OPEN SHELTER
+              NEAREST AVAILABLE BUILDING
             </div>
             <div style={{ fontSize:'0.95rem', fontWeight:700, color:'#22c55e', marginBottom:'3px' }}>
-              {nearestShelter?.name}
+              {nearestBuilding?.name}
             </div>
-            <div style={{ fontSize:'0.77rem', color:'#7B9BB5' }}>{nearestShelter?.address}</div>
+            <div style={{ fontSize:'0.77rem', color:'#7B9BB5' }}>{nearestBuilding?.address}</div>
             <div style={{ display:'flex', gap:'14px', marginTop:'9px', fontSize:'0.76rem' }}>
               <div style={{ color:'#E8F1F8' }}>🚗 <span style={{ color:'#0FADA0', fontWeight:700 }}>6 min</span> drive</div>
               <div style={{ color:'#E8F1F8' }}>🚶 <span style={{ color:'#f59e0b', fontWeight:700 }}>22 min</span> walk</div>
@@ -326,12 +326,12 @@ export default function MainDashboard() {
             )}
           </div>
 
-          {/* All shelters */}
+          {/* All buildings */}
           <div style={card()}>
             <div style={{ fontSize:'0.58rem', letterSpacing:'0.14em', color:'#7B9BB5', marginBottom:'9px' }}>
-              ALL SHELTERS
+              ALL BUILDINGS
             </div>
-            {SHELTERS.map(s => (
+            {BUILDINGS.map(s => (
               <div key={s.id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'8px 0', borderBottom:'1px solid rgba(255,255,255,0.05)' }}>
                 <div>
                   <div style={{ fontSize:'0.8rem', color:'#E8F1F8', fontWeight:600 }}>{s.name}</div>
@@ -350,11 +350,11 @@ export default function MainDashboard() {
             <div style={{ display:'flex', flexDirection:'column', gap:'6px', fontSize:'0.77rem' }}>
               <div style={{ display:'flex', alignItems:'center', gap:'8px', color:'#E8F1F8' }}>
                 <span style={{ fontSize:'16px' }}>🏠</span>
-                <span style={{ color:'#22c55e', fontWeight:600 }}>Green pin</span> — Shelter OPEN
+                <span style={{ color:'#22c55e', fontWeight:600 }}>Green pin</span> — Building AVAILABLE
               </div>
               <div style={{ display:'flex', alignItems:'center', gap:'8px', color:'#E8F1F8' }}>
-                <span style={{ fontSize:'16px' }}>🏠</span>
-                <span style={{ color:'#ef4444', fontWeight:600 }}>Red pin</span> — Shelter FULL
+                <span style={{ fontSize:'16px' }}>🏢</span>
+                <span style={{ color:'#ef4444', fontWeight:600 }}>Red pin</span> — Building FULL
               </div>
               <div style={{ display:'flex', alignItems:'center', gap:'8px', color:'#E8F1F8' }}>
                 <span style={{ width:'16px', height:'16px', background:'#3b82f6', borderRadius:'50%', border:'2px solid #fff', display:'inline-block', flexShrink:0 }}/>
@@ -387,7 +387,7 @@ export default function MainDashboard() {
               )}
               {profile.score && (
                 <div style={{ marginTop:'6px', color:'#0FADA0', fontWeight:700, fontSize:'0.8rem' }}>
-                  Shelter likelihood: {profile.score}%
+                  Building access likelihood: {profile.score}%
                 </div>
               )}
             </div>
@@ -400,7 +400,7 @@ export default function MainDashboard() {
               borderRadius:'8px', color:'#0FADA0', fontSize:'0.78rem', padding:'10px',
               cursor:'pointer', letterSpacing:'0.08em', fontWeight:600, fontFamily:'inherit',
             }}>
-              👤 CALCULATE SHELTER LIKELIHOOD
+              👤 CALCULATE BUILDING ACCESS
             </button>
             <button onClick={() => navigate('/sos')} style={{
               background: simulating ? 'rgba(239,68,68,0.15)' : 'transparent',
@@ -448,13 +448,13 @@ export default function MainDashboard() {
               </Popup>
             </Marker>
 
-            {/* Shelters */}
-            {SHELTERS.map(s => (
+            {/* Buildings */}
+            {BUILDINGS.map(s => (
               <Marker key={s.id} position={s.coords} icon={s.status === 'available' ? openShelterIcon : fullShelterIcon}>
                 <Popup>
                   <div style={{ fontFamily:'monospace', fontSize:'12px', minWidth:'160px' }}>
                     <strong style={{ color: s.status === 'available' ? '#22c55e' : '#ef4444' }}>
-                      {s.status === 'available' ? '✓ OPEN' : '✗ FULL'}
+                      {s.status === 'available' ? '✓ AVAILABLE' : '✗ FULL'}
                     </strong><br/>
                     <strong>{s.name}</strong><br/>
                     {s.address}<br/>
@@ -476,7 +476,7 @@ export default function MainDashboard() {
                     </div>
                   </Popup>
                 </Marker>
-                <Polyline positions={ROUTE_TO_SHELTER} pathOptions={{ color:'#22c55e', weight:5, opacity:0.9 }} />
+                <Polyline positions={ROUTE_TO_BUILDING} pathOptions={{ color:'#22c55e', weight:5, opacity:0.9 }} />
               </>
             )}
           </MapContainer>
