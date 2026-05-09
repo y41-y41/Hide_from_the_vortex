@@ -61,18 +61,19 @@ const tornadoIcon = L.divIcon({
 const WINDSOR_CENTER = [42.3149, -83.0364]
 
 const SHELTERS = [
-  { id: 1, name: 'Windsor Arena',   coords: [42.3201, -83.0516], address: '445 Ouellette Ave', capacity: 850,  status: 'available' },
+  { id: 1, name: 'Windsor Arena',   coords: [42.3120, -83.0280], address: '445 Ouellette Ave', capacity: 850,  status: 'available' },
   { id: 2, name: 'St. Clair College', coords: [42.2993, -83.0202], address: '2000 Talbot Rd W', capacity: 600,  status: 'full' },
   { id: 3, name: 'WFCU Centre',     coords: [42.2756, -83.0022], address: '8787 McHugh St',   capacity: 1200, status: 'full' },
 ]
 
 const TORNADO_PATH = [
-  [42.2450, -83.1800], [42.2650, -83.1400], [42.2900, -83.1000],
-  [42.3100, -83.0700], [42.3300, -83.0400],
+  [42.2400, -83.1850], [42.2550, -83.1550], [42.2700, -83.1200],
+  [42.2850, -83.0950], [42.2980, -83.0700], [42.3100, -83.0500],
+  [42.3200, -83.0300], [42.3280, -83.0150],
 ]
 
 const ROUTE_TO_SHELTER = [
-  [42.3149, -83.0364], [42.3160, -83.0420], [42.3175, -83.0460], [42.3201, -83.0516],
+  [42.3149, -83.0364], [42.3145, -83.0350], [42.3138, -83.0320], [42.3120, -83.0280],
 ]
 
 const LANGUAGES = [
@@ -116,7 +117,7 @@ export default function MainDashboard() {
     intervalRef.current = setInterval(() => {
       setTornadoPos(p => Math.min(p + 1, TORNADO_PATH.length - 1))
       setTimeElapsed(t => t + 1)
-    }, 2000)
+    }, 6000)
   }
 
   useEffect(() => () => clearInterval(intervalRef.current), [])
