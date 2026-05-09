@@ -1,5 +1,4 @@
-// MainDashboard.jsx
-// Main page: Windsor map, tornado status, shelter waypoints, simulate button
+// MainDashboard.jsx — Main page with Windsor map + nav
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet'
