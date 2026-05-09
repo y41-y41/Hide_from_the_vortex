@@ -66,7 +66,7 @@ export default function HumanoidFigure({ mobility = 'walking', score = 80, anima
           style={{ transition: 'stroke-dashoffset 1s ease, stroke 0.5s ease' }}
         />
         <text x="40" y="38" textAnchor="middle" fill={color} fontSize="18" fontWeight="700" fontFamily="monospace">{score}%</text>
-        <text x="40" y="54" textAnchor="middle" fill="#7B9BB5" fontSize="9" fontFamily="monospace">SURVIVAL</text>
+        <text x="40" y="54" textAnchor="middle" fill="#7B9BB5" fontSize="9" fontFamily="monospace">GET THERE</text>
       </svg>
     </div>
   )
