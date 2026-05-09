@@ -87,17 +87,23 @@ const LANGUAGES = [
 ]
 
 // ── MAP CONTROLLER ──────────────────────────────────────────────
-function MapController({ simulating, tornadoPos }) {
+function MapController({ simulating, tornadoPos, showTornadoFocus }) {
   const map = useMap()
   useEffect(() => {
-    if (simulating) {
-      const target = TORNADO_PATH[tornadoPos] || WINDSOR_CENTER
-      const zoom = tornadoPos > 6 ? 4 : 7
-      map.flyTo(target, zoom, { duration: 1.6 })
-    } else {
+    if (!simulating) {
       map.flyTo(WINDSOR_CENTER, 12, { duration: 1.2 })
+      return
     }
-  }, [simulating, tornadoPos, map])
+
+    if (showTornadoFocus) {
+      const target = TORNADO_PATH[tornadoPos] || WINDSOR_CENTER
+      map.flyTo(target, 10, { duration: 1.6 })
+      return
+    }
+
+    const routeCenter = ROUTE_TO_SHELTER[Math.floor(ROUTE_TO_SHELTER.length / 2)]
+    map.flyTo(routeCenter || WINDSOR_CENTER, 11, { duration: 1.6 })
+  }, [simulating, tornadoPos, showTornadoFocus, map])
   return null
 }
 
@@ -107,26 +113,48 @@ export default function MainDashboard() {
   const [simulating, setSimulating]     = useState(false)
   const [tornadoPos, setTornadoPos]     = useState(0)
   const [timeElapsed, setTimeElapsed]   = useState(0)
+  const [showTornadoFocus, setShowTornadoFocus] = useState(false)
   const [selectedLang, setSelectedLang] = useState(LANGUAGES[0])
   const [showLangMenu, setShowLangMenu] = useState(false)
   const intervalRef = useRef(null)
+  const focusTimeoutRef = useRef(null)
 
   const profile = (() => { try { return JSON.parse(localStorage.getItem('vortex_profile') || '{}') } catch { return {} } })()
   const nearestShelter = SHELTERS.find(s => s.status === 'available')
 
   function handleSimulate() {
     if (simulating) {
-      setSimulating(false); setTornadoPos(0); setTimeElapsed(0)
-      clearInterval(intervalRef.current); return
+      setSimulating(false)
+      setTornadoPos(0)
+      setTimeElapsed(0)
+      setShowTornadoFocus(false)
+      clearInterval(intervalRef.current)
+      clearTimeout(focusTimeoutRef.current)
+      return
     }
-    setSimulating(true); setTimeElapsed(0)
+
+    setSimulating(true)
+    setTornadoPos(0)
+    setTimeElapsed(0)
+    setShowTornadoFocus(true)
+
+    clearTimeout(focusTimeoutRef.current)
+    focusTimeoutRef.current = window.setTimeout(() => {
+      setShowTornadoFocus(false)
+    }, 6000)
+
     intervalRef.current = setInterval(() => {
       setTornadoPos(p => Math.min(p + 1, TORNADO_PATH.length - 1))
       setTimeElapsed(t => t + 1)
     }, 2000)
   }
 
-  useEffect(() => () => clearInterval(intervalRef.current), [])
+  useEffect(() => {
+    return () => {
+      clearInterval(intervalRef.current)
+      clearTimeout(focusTimeoutRef.current)
+    }
+  }, [])
 
   const threatLevel = simulating
     ? timeElapsed < 4 ? 'ADVISORY' : timeElapsed < 7 ? 'WARNING' : 'CRITICAL'
@@ -392,7 +420,7 @@ export default function MainDashboard() {
               url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
               attribution='&copy; <a href="https://carto.com/">CARTO</a>'
             />
-            <MapController simulating={simulating} tornadoPos={tornadoPos} />
+            <MapController simulating={simulating} tornadoPos={tornadoPos} showTornadoFocus={showTornadoFocus} />
 
             {/* User */}
             <Marker position={WINDSOR_CENTER} icon={userIcon}>
