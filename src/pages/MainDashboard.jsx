@@ -68,7 +68,9 @@ const SHELTERS = [
 const TORNADO_PATH = [
   [42.2400, -83.1850], [42.2550, -83.1550], [42.2700, -83.1200],
   [42.2850, -83.0950], [42.2980, -83.0700], [42.3100, -83.0500],
-  [42.3200, -83.0300], [42.3280, -83.0150],
+  [42.3300, -83.0300], [43.0000, -82.0000], [44.0000, -79.0000],
+  [45.0000, -74.0000], [45.5000, -68.0000], [46.0000, -55.0000],
+  [47.0000, -35.0000], [48.0000, -20.0000], [49.0000, -10.0000],
 ]
 
 const ROUTE_TO_SHELTER = [
@@ -85,12 +87,17 @@ const LANGUAGES = [
 ]
 
 // ── MAP CONTROLLER ──────────────────────────────────────────────
-function MapController({ simulating }) {
+function MapController({ simulating, tornadoPos }) {
   const map = useMap()
   useEffect(() => {
-    if (simulating) map.flyTo([42.3100, -83.0700], 13, { duration: 1.8 })
-    else            map.flyTo(WINDSOR_CENTER, 12,  { duration: 1.2 })
-  }, [simulating, map])
+    if (simulating) {
+      const target = TORNADO_PATH[tornadoPos] || WINDSOR_CENTER
+      const zoom = tornadoPos > 6 ? 4 : 7
+      map.flyTo(target, zoom, { duration: 1.6 })
+    } else {
+      map.flyTo(WINDSOR_CENTER, 12, { duration: 1.2 })
+    }
+  }, [simulating, tornadoPos, map])
   return null
 }
 
@@ -332,10 +339,15 @@ export default function MainDashboard() {
               <div style={{ fontSize:'0.58rem', letterSpacing:'0.14em', color:'#7B9BB5', marginBottom:'7px' }}>YOUR PROFILE</div>
               <div style={{ color:'#E8F1F8', fontWeight:600, fontSize:'0.85rem' }}>{profile.name}</div>
               <div style={{ fontSize:'0.75rem', color:'#7B9BB5' }}>Mobility: {profile.mobility}</div>
-              <div style={{ fontSize:'0.75rem', color:'#7B9BB5' }}>Transport: {profile.hasCar ? '🚗 Has vehicle' : '🚶 On foot'}</div>
+              <div style={{ fontSize:'0.75rem', color:'#7B9BB5' }}>Travel mode: {profile.travelMode === 'car' ? '🚗 I am in a car' : '🚶 On foot'}</div>
+              {profile.height && profile.weight && (
+                <div style={{ fontSize:'0.75rem', color:'#7B9BB5' }}>
+                  {profile.height} cm · {profile.weight} kg
+                </div>
+              )}
               {profile.score && (
                 <div style={{ marginTop:'6px', color:'#0FADA0', fontWeight:700, fontSize:'0.8rem' }}>
-                  Survival Score: {profile.score}%
+                  Shelter likelihood: {profile.score}%
                 </div>
               )}
             </div>
@@ -348,7 +360,7 @@ export default function MainDashboard() {
               borderRadius:'8px', color:'#0FADA0', fontSize:'0.78rem', padding:'10px',
               cursor:'pointer', letterSpacing:'0.08em', fontWeight:600, fontFamily:'inherit',
             }}>
-              👤 CALCULATE SURVIVAL SPEED
+              👤 CALCULATE SHELTER LIKELIHOOD
             </button>
             <button onClick={() => navigate('/sos')} style={{
               background: simulating ? 'rgba(239,68,68,0.15)' : 'transparent',
@@ -380,7 +392,7 @@ export default function MainDashboard() {
               url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
               attribution='&copy; <a href="https://carto.com/">CARTO</a>'
             />
-            <MapController simulating={simulating} />
+            <MapController simulating={simulating} tornadoPos={tornadoPos} />
 
             {/* User */}
             <Marker position={WINDSOR_CENTER} icon={userIcon}>
