@@ -97,3 +97,144 @@ body {
   letter-spacing: 0.05em;
   opacity: 0.85;
 }
+
+/* Language selector */
+.language-selector {
+  position: relative;
+}
+.language-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  list-style: none;
+  padding: 0.5rem 0;
+  min-width: 120px;
+  z-index: 10;
+}
+.language-menu li {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+.language-menu li:hover {
+  background: var(--bg-elevated);
+}
+
+/* Flashing translations */
+.flashing-translations {
+  animation: flash 3s ease-in-out;
+}
+@keyframes flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Main Dashboard */
+.main-dashboard {
+  min-height: 100vh;
+}
+.main-dashboard header {
+  padding: 1rem 2rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.main-dashboard .content {
+  display: flex;
+  padding: 2rem;
+}
+.map-container {
+  flex: 1;
+  margin-right: 2rem;
+}
+.sidebar {
+  width: 300px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+/* SOS Page */
+.sos-page {
+  min-height: 100vh;
+}
+.sos-page header {
+  padding: 1rem 2rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.sos-page .content {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.signal-tower {
+  position: relative;
+  margin-bottom: 2rem;
+}
+.radio-rings {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.ring {
+  position: absolute;
+  border: 2px solid var(--teal);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+.ring1 {
+  width: 100px;
+  height: 100px;
+  animation-delay: 0s;
+}
+.ring2 {
+  width: 150px;
+  height: 150px;
+  animation-delay: 0.5s;
+}
+.ring3 {
+  width: 200px;
+  height: 200px;
+  animation-delay: 1s;
+}
+@keyframes pulse {
+  0% { transform: scale(0.5); opacity: 1; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+.morse-code {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+}
+.recipients ul {
+  list-style: none;
+  padding: 0;
+}
+.recipients li {
+  padding: 0.5rem 0;
+}
+.terminal-log {
+  margin-top: 2rem;
+  width: 100%;
+  max-width: 600px;
+}
+.log {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+  max-height: 200px;
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}

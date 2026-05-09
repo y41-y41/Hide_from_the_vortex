@@ -1,12 +1,11 @@
-// Setup.jsx  —  Page 1: Enter your profile
+// Setup.jsx — Profile page: Calculate evacuation time
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import HumanoidFigure from '../components/HumanoidFigure.jsx'
-import LanguageSlider from '../components/LanguageSlider.jsx'
+
+const languages = ['English', 'French', 'Spanish', 'German', 'Chinese', 'Japanese']
 
 function calcScore(profile) {
   let score = 100
-  // distance handled on dashboard, here we preview mobility-based score
   if (profile.mobility === 'wheelchair') score -= 25
   if (profile.mobility === 'elderly')    score -= 15
   if (profile.age > 65)                  score -= 10
@@ -18,8 +17,15 @@ function calcScore(profile) {
   return Math.min(100, Math.max(5, score))
 }
 
+function calculateEvacuation(profile) {
+  // Mock calculation
+  let distance = 5 // km
+  let speed = profile.hasCar ? 40 : 5 // km/h
+  let time = distance / speed * 60 // min
+  return { distance, speed, time: Math.round(time) }
+}
+
 export default function Setup() {
-  const navigate = useNavigate()
   const [profile, setProfile] = useState({
     name: '',
     address: '',
@@ -30,6 +36,9 @@ export default function Setup() {
     disabilities: [],
     language: 'en',
   })
+  const [selectedLanguage, setSelectedLanguage] = useState('English')
+  const [showLanguageMenu, setShowLanguageMenu] = useState(false)
+  const [results, setResults] = useState(null)
 
   const score = calcScore(profile)
 
@@ -48,9 +57,9 @@ export default function Setup() {
 
   function handleSubmit() {
     if (!profile.name || !profile.address) return
-    // store profile for dashboard
+    const calc = calculateEvacuation(profile)
+    setResults(calc)
     localStorage.setItem('vortex_profile', JSON.stringify({ ...profile, score }))
-    navigate('/dashboard')
   }
 
   return (
@@ -71,12 +80,19 @@ export default function Setup() {
             VORTEX
           </div>
         </div>
-        {/* Arabic diversity label */}
-        <div style={{ textAlign: 'right' }}>
-          <div className="arabic-label">نظام الإنقاذ الذكي</div>
-          <div style={{ fontSize: '0.6rem', color: '#3D5A73', letterSpacing: '0.1em', marginTop: '2px' }}>
-            AI SURVIVAL SYSTEM
-          </div>
+        <div className="language-selector">
+          <button onClick={() => setShowLanguageMenu(!showLanguageMenu)}>
+            SELECT LANGUAGE ({selectedLanguage})
+          </button>
+          {showLanguageMenu && (
+            <ul className="language-menu">
+              {languages.map(lang => (
+                <li key={lang} onClick={() => { setSelectedLanguage(lang); setShowLanguageMenu(false) }}>
+                  {lang}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </header>
 
@@ -97,11 +113,10 @@ export default function Setup() {
 
           <div>
             <h1 style={{ fontSize: '1.3rem', fontWeight: 700, marginBottom: '0.35rem' }}>
-              Build your survival profile
+              Calculate evacuation time
             </h1>
             <p style={{ fontSize: '0.85rem', color: '#7B9BB5', lineHeight: 1.6 }}>
-              The AI uses your profile to generate <strong style={{color:'#0FADA0'}}>personalized</strong> tornado instructions —
-              not the same generic alert everyone gets. A wheelchair user is never told to take stairs.
+              Enter your profile to see estimated time to nearest shelter, speed, and distance.
             </p>
           </div>
 
@@ -193,22 +208,23 @@ export default function Setup() {
             </div>
           </div>
 
-          {/* language slider */}
-          <div className="card">
-            <div style={{ fontSize: '0.7rem', letterSpacing: '0.12em', color: '#7B9BB5', marginBottom: '0.85rem' }}>
-              PREFERRED LANGUAGE
-            </div>
-            <LanguageSlider onChange={lang => set('language', lang.code)} />
-          </div>
-
           <button
             className="btn-primary"
             onClick={handleSubmit}
             disabled={!profile.name || !profile.address}
             style={{ opacity: (!profile.name || !profile.address) ? 0.4 : 1 }}
           >
-            ACTIVATE MONITORING →
+            CALCULATE →
           </button>
+
+          {results && (
+            <div className="card">
+              <h2>Evacuation Estimate</h2>
+              <p>Distance to nearest shelter: {results.distance} km</p>
+              <p>Estimated speed: {results.speed} km/h</p>
+              <p>Time to shelter: {results.time} minutes</p>
+            </div>
+          )}
         </div>
 
         {/* RIGHT — humanoid figure */}

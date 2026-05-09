@@ -7,10 +7,10 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/"          element={<MainDashboard />} />
-        <Route path="/profile"   element={<Setup />} />
-        <Route path="/sos"       element={<SOSPage />} />
-        <Route path="*"          element={<Navigate to="/" />} />
+        <Route path="/"        element={<MainDashboard />} />
+        <Route path="/profile" element={<Setup />} />
+        <Route path="/sos"     element={<SOSPage />} />
+        <Route path="*"        element={<Navigate to="/" />} />
       </Routes>
     </BrowserRouter>
   )
