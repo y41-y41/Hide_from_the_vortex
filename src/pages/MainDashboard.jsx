@@ -51,27 +51,34 @@ const userIcon = L.divIcon({
 // Tornado emoji marker
 const tornadoIcon = L.divIcon({
   className: '',
-  html: `<div style="font-size:28px;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5));">🌪️</div>`,
-  iconSize: [32, 32],
-  iconAnchor: [16, 16],
-  popupAnchor: [0, -18],
+  html: `<div style="position:relative; width:76px; height:76px; display:flex; align-items:center; justify-content:center;">
+    <style>@keyframes vx-tornado-spin {0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+           @keyframes vx-tornado-glow {0%{box-shadow:0 0 10px rgba(239,68,68,0.4)}50%{box-shadow:0 0 26px rgba(239,68,68,0.85)}100%{box-shadow:0 0 10px rgba(239,68,68,0.4)}}</style>
+    <div style="position:absolute; width:72px; height:72px; border-radius:50%; background:rgba(239,68,68,0.08); animation:vx-tornado-glow 1.6s ease-in-out infinite;"></div>
+    <div style="font-size:50px; line-height:1; filter:drop-shadow(0 0 18px rgba(239,68,68,0.75)); animation:vx-tornado-spin 2.1s linear infinite; transform-origin:center;">🌪️</div>
+  </div>`,
+  iconSize: [76, 76],
+  iconAnchor: [38, 38],
+  popupAnchor: [0, -40],
 })
 
 // ── DATA ────────────────────────────────────────────────────────
-const WINDSOR_CENTER = [42.3149, -83.0364]
+const WINDSOR_CENTER = [42.2828, -83.0286]
 
 const SHELTERS = [
   { id: 1, name: 'Lasalle Civic Centre', coords: [42.2195, -83.0652], address: '5950 Malden Rd', capacity: 850, status: 'available' },
-  { id: 2, name: 'St. Clair College',    coords: [42.2993, -83.0202], address: '2000 Talbot Rd W', capacity: 600, status: 'full' },
-  { id: 3, name: 'WFCU Centre',          coords: [42.2756, -83.0022], address: '8787 McHugh St',   capacity: 1200, status: 'full' },
+  { id: 2, name: 'St. Clair College',    coords: [42.3210, -82.9600], address: '2000 Talbot Rd W', capacity: 600, status: 'full' },
+  { id: 3, name: 'WFCU Centre',          coords: [42.2600, -83.0700], address: '8787 McHugh St',   capacity: 1200, status: 'full' },
 ]
 const TORNADO_PATH = [
   [42.2400, -83.1850], [42.2550, -83.1550], [42.2700, -83.1200],
   [42.2850, -83.0950], [42.2980, -83.0700], [42.3100, -83.0500],
+  [42.3220, -83.0300], [42.3350, -83.0100], [42.3450, -82.9900],
+  [42.3550, -82.9700], [42.3650, -82.9500],
 ]
 
 const ROUTE_TO_SHELTER = [
-  [42.3149, -83.0364], [42.2950, -83.0400], [42.2750, -83.0500], [42.2500, -83.0600], [42.2195, -83.0652],
+  [42.2828, -83.0286], [42.2750, -83.0380], [42.2600, -83.0500], [42.2420, -83.0600], [42.2195, -83.0652],
 ]
 
 const LANGUAGES = [
@@ -94,7 +101,7 @@ function MapController({ simulating, tornadoPos, showTornadoFocus, showUserFocus
 
     if (showTornadoFocus) {
       const target = TORNADO_PATH[tornadoPos] || WINDSOR_CENTER
-      map.flyTo(target, 10, { duration: 1.6 })
+      map.flyTo(target, 11, { duration: 1.6 })
       return
     }
 
@@ -436,7 +443,7 @@ export default function MainDashboard() {
             <Marker position={WINDSOR_CENTER} icon={userIcon}>
               <Popup>
                 <div style={{ fontFamily:'monospace', fontSize:'12px' }}>
-                  <strong>{profile.name || 'Your location'}</strong><br/>Windsor, ON
+                  <strong>{profile.name || 'Your location'}</strong><br/>Ford City, ON
                 </div>
               </Popup>
             </Marker>
@@ -460,7 +467,7 @@ export default function MainDashboard() {
             {/* Tornado simulation */}
             {simulating && (
               <>
-                <Polyline positions={TORNADO_PATH} pathOptions={{ color:'#ef4444', weight:3, dashArray:'8 6', opacity:0.7 }} />
+                <Polyline positions={TORNADO_PATH} pathOptions={{ color:'#ff3f3f', weight:5, dashArray:'6 4', opacity:0.95 }} />
                 <Marker position={TORNADO_PATH[tornadoPos]} icon={tornadoIcon}>
                   <Popup>
                     <div style={{ fontFamily:'monospace', fontSize:'12px' }}>
