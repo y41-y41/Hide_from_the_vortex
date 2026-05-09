@@ -5,33 +5,45 @@ import HumanoidFigure from '../components/HumanoidFigure.jsx'
 const languages = ['English', 'French', 'Spanish', 'German', 'Chinese', 'Japanese']
 
 function calcScore(profile) {
-  let score = 100
-  if (profile.mobility === 'wheelchair') score -= 25
-  if (profile.mobility === 'elderly')    score -= 15
+  let score = 92
+  if (profile.mobility === 'wheelchair') score -= 28
+  if (profile.mobility === 'elderly')    score -= 18
+  if (profile.mobility === 'child')      score -= 10
   if (profile.age > 65)                  score -= 10
-  if (profile.age < 10)                  score -= 5
-  if (profile.hasCar)                    score += 10
-  if (profile.groundFloor)               score += 8
+  if (profile.age < 12)                  score -= 6
+  if (profile.travelMode === 'car')      score += 14
+  if (profile.travelMode === 'foot')     score -= 8
+  if (profile.weight > 105)              score -= 4
+  if (profile.height < 155)              score -= 3
+  if (profile.groundFloor)               score += 7
   if (profile.disabilities.includes('vision'))   score -= 8
   if (profile.disabilities.includes('hearing'))  score -= 5
-  return Math.min(100, Math.max(5, score))
+  if (profile.disabilities.includes('cognitive')) score -= 6
+  if (profile.disabilities.includes('infant'))   score -= 5
+  if (profile.disabilities.includes('pet'))      score -= 2
+  return Math.min(99, Math.max(12, score))
 }
 
 function calculateEvacuation(profile) {
-  // Mock calculation
-  let distance = 5 // km
-  let speed = profile.hasCar ? 40 : 5 // km/h
-  let time = distance / speed * 60 // min
-  return { distance, speed, time: Math.round(time) }
+  const distance = 6.2 // km to local shelter estimate
+  let speed = profile.travelMode === 'car' ? 45 : 5 // km/h
+  if (profile.mobility === 'wheelchair') speed = 3.2
+  if (profile.mobility === 'elderly')    speed = Math.min(speed, 4.5)
+  if (profile.age > 65)                  speed = Math.max(2.8, speed - 1.2)
+  if (profile.age < 12)                  speed = Math.max(3.5, speed - 0.8)
+  if (profile.travelMode === 'foot' && profile.weight > 90) speed = Math.max(3.5, speed - 0.6)
+  const time = distance / speed * 60
+  return { distance, speed: Math.round(speed * 10) / 10, time: Math.round(time) }
 }
 
 export default function Setup() {
   const [profile, setProfile] = useState({
     name: '',
-    address: '',
+    height: 172,
+    weight: 72,
     age: 25,
     mobility: 'walking',
-    hasCar: true,
+    travelMode: 'car',
     groundFloor: false,
     disabilities: [],
     language: 'en',
@@ -140,13 +152,23 @@ export default function Setup() {
               </div>
             </div>
 
-            <div className="field">
-              <label>Home address (Windsor area)</label>
-              <input
-                placeholder="e.g. 3200 Deziel Dr, Windsor, ON"
-                value={profile.address}
-                onChange={e => set('address', e.target.value)}
-              />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 1rem' }}>
+              <div className="field">
+                <label>Height (cm)</label>
+                <input
+                  type="number" min="90" max="240"
+                  value={profile.height}
+                  onChange={e => set('height', Number(e.target.value))}
+                />
+              </div>
+              <div className="field">
+                <label>Weight (kg)</label>
+                <input
+                  type="number" min="30" max="220"
+                  value={profile.weight}
+                  onChange={e => set('weight', Number(e.target.value))}
+                />
+              </div>
             </div>
 
             <div className="field">
@@ -161,10 +183,10 @@ export default function Setup() {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 1rem' }}>
               <div className="field">
-                <label>Have a vehicle?</label>
-                <select value={profile.hasCar ? 'yes' : 'no'} onChange={e => set('hasCar', e.target.value === 'yes')}>
-                  <option value="yes">Yes — I have a car</option>
-                  <option value="no">No — on foot / transit</option>
+                <label>Current travel mode</label>
+                <select value={profile.travelMode} onChange={e => set('travelMode', e.target.value)}>
+                  <option value="car">I am in a car</option>
+                  <option value="foot">I am on foot</option>
                 </select>
               </div>
               <div className="field">
@@ -211,8 +233,8 @@ export default function Setup() {
           <button
             className="btn-primary"
             onClick={handleSubmit}
-            disabled={!profile.name || !profile.address}
-            style={{ opacity: (!profile.name || !profile.address) ? 0.4 : 1 }}
+            disabled={!profile.name || !profile.height || !profile.weight}
+            style={{ opacity: (!profile.name || !profile.height || !profile.weight) ? 0.4 : 1 }}
           >
             CALCULATE →
           </button>
@@ -231,7 +253,7 @@ export default function Setup() {
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', paddingTop: '1rem' }}>
           <div className="card" style={{ width: '100%', textAlign: 'center' }}>
             <div style={{ fontSize: '0.65rem', letterSpacing: '0.15em', color: '#7B9BB5', marginBottom: '1rem' }}>
-              SURVIVAL PROFILE PREVIEW
+              SHELTER ACCESS PREVIEW
             </div>
 
             <HumanoidFigure
@@ -244,6 +266,11 @@ export default function Setup() {
               {profile.name && (
                 <div style={{ color: '#E8F1F8', fontWeight: 600, marginBottom: '4px' }}>
                   {profile.name}{profile.age ? `, ${profile.age}` : ''}
+                </div>
+              )}
+              {profile.height && profile.weight && (
+                <div style={{ color: '#7B9BB5', fontSize: '0.78rem' }}>
+                  {profile.height} cm · {profile.weight} kg
                 </div>
               )}
               {profile.mobility === 'wheelchair' && (
@@ -274,9 +301,9 @@ export default function Setup() {
             <div style={{ fontSize: '0.65rem', letterSpacing: '0.12em', marginBottom: '0.75rem' }}>
               HOW THE SCORE WORKS
             </div>
-            The AI adjusts your score in real-time based on <span style={{color:'#0FADA0'}}>your distance</span> from the tornado,{' '}
-            <span style={{color:'#0FADA0'}}>your mobility</span>, time to shelter, and{' '}
-            <span style={{color:'#0FADA0'}}>road conditions</span>. Higher score = more options. Lower score = AI prioritizes shelter-in-place.
+            The AI estimates how likely you are to reach a safe shelter based on <span style={{color:'#0FADA0'}}>your profile</span>,{' '}
+            <span style={{color:'#0FADA0'}}>travel mode</span>, <span style={{color:'#0FADA0'}}>time to shelter</span>, and{' '}
+            <span style={{color:'#0FADA0'}}>evacuation difficulty</span>. Higher score = faster access. Lower score = the system recommends sheltering in place.
           </div>
         </div>
       </div>

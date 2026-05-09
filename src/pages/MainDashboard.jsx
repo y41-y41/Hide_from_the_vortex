@@ -61,9 +61,9 @@ const tornadoIcon = L.divIcon({
 const WINDSOR_CENTER = [42.3149, -83.0364]
 
 const SHELTERS = [
-  { id: 1, name: 'Windsor Arena',   coords: [42.3120, -.0280], address: '445 Ouellette Ave', capacity: 850,  status: 'available' },
-  { id: 2, name: 'St. Clair College', coords: [42.2993, -83.0202], address: '2000 Talbot Rd W', capacity: 600,  status: 'full' },
-  { id: 3, name: 'WFCU Centre',     coords: [42.2756, -83.0022], address: '8787 McHugh St',   capacity: 1200, status: 'full' },
+  { id: 1, name: 'Lasalle Civic Centre', coords: [42.2195, -83.0652], address: '5950 Malden Rd', capacity: 850, status: 'available' },
+  { id: 2, name: 'St. Clair College',    coords: [42.2993, -83.0202], address: '2000 Talbot Rd W', capacity: 600, status: 'full' },
+  { id: 3, name: 'WFCU Centre',          coords: [42.2756, -83.0022], address: '8787 McHugh St',   capacity: 1200, status: 'full' },
 ]
 const TORNADO_PATH = [
   [42.2400, -83.1850], [42.2550, -83.1550], [42.2700, -83.1200],
@@ -72,7 +72,7 @@ const TORNADO_PATH = [
 ]
 
 const ROUTE_TO_SHELTER = [
-  [42.3149, -83.0364], [42.3160, -83.0420], [42.3175, -83.0460], [42.3201, -83.0516],
+  [42.3149, -83.0364], [42.2950, -83.0400], [42.2750, -83.0500], [42.2500, -83.0600], [42.2195, -83.0652],
 ]
 
 const LANGUAGES = [
