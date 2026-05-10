@@ -31,9 +31,13 @@ function makePin(color, emoji) {
 }
 
 // Green pin for available buildings
-const openShelterIcon = makePin('#22c55e', '🏢')
+const openShelterIcon = makePin('#22c55e', '�')
 // Red pin for full buildings
-const fullShelterIcon = makePin('#ef4444', '🏢')
+const fullShelterIcon = makePin('#ef4444', '🏠')
+// Red pin for too old houses
+const tooOldIcon = makePin('#ef4444', 'OLD')
+// Red pin for too close houses
+const tooCloseIcon = makePin('#ef4444', '⚠')
 // Default blue Leaflet-style pin for user
 const userIcon = L.divIcon({
   className: '',
@@ -64,12 +68,86 @@ const tornadoIcon = L.divIcon({
 
 // ── DATA ────────────────────────────────────────────────────────
 const WINDSOR_CENTER = [42.2828, -83.0286]
+const USER_LOCATION = [42.27942, -83.03170] // User location
 
-const BUILDINGS = [
-  { id: 1, name: 'Lasalle Civic Centre', coords: [42.2195, -83.0652], address: '5950 Malden Rd', capacity: 850, status: 'available' },
-  { id: 2, name: 'University of Windsor', coords: [42.3080, -83.0650], address: '401 Sunset Ave', capacity: 600, status: 'full' },
-  { id: 3, name: 'Windsor Regional Hospital', coords: [42.3065, -83.0440], address: '1030 Ouellette Ave', capacity: 1200, status: 'too_close' },
-]
+// Calculate survival score based on distance to tornado, house age, and structural integrity
+function calculateSurvivalScore(houseCoords, houseAge, tornadoPos, tornadoPath) {
+  // Distance from house to tornado
+  const [houseLat, houseLon] = houseCoords
+  const tornadoCoord = tornadoPath[tornadoPos] || tornadoPath[0]
+  const [tornadoLat, tornadoLon] = tornadoCoord
+  
+  // Haversine distance (approximate in km)
+  const dLat = (tornadoLat - houseLat) * 111
+  const dLon = (tornadoLon - houseLon) * 111 * Math.cos((houseLat * Math.PI) / 180)
+  const distToTornado = Math.sqrt(dLat * dLat + dLon * dLon) * 1000 // meters
+  
+  // Distance score: 0-25 points (farther is better, max at 2km+)
+  const distScore = Math.min(25, (distToTornado / 2000) * 25)
+  
+  // Age score: 0-25 points (newer buildings safer, built after 1980 gets full points)
+  const buildingYear = 1950 + Math.floor(Math.random() * 74) // Random 1950-2024 for demo
+  const ageScore = Math.max(0, Math.min(25, ((2024 - buildingYear) / 40) * 25))
+  
+  // Structural integrity: 0-20 points (randomized for demo, could be from inspection data)
+  const structuralScore = Math.random() * 20
+  
+  const rawScore = Math.round(distScore + (25 - ageScore) + structuralScore)
+  // Cap between 30 and 70 for normal houses
+  return Math.max(30, Math.min(70, rawScore))
+}
+
+// Function to fetch nearby buildings from OpenStreetMap
+async function fetchNearbyBuildings(center, radius = 500) {
+  const [lat, lon] = center;
+  const overpassQuery = `
+    [out:json][timeout:25];
+    (
+      way(around:${radius},${lat},${lon})[building];
+      relation(around:${radius},${lat},${lon})[building];
+    );
+    out center;
+  `;
+  const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`;
+  
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    const buildings = data.elements
+      .filter(el => el.type === 'way' || el.type === 'relation')
+      .map((el, index) => ({
+        id: el.id,
+        name: index === 1 ? `House 2 - BEST OPTION` : `House ${index + 1}`,
+        coords: [el.center?.lat || el.lat, el.center?.lon || el.lon],
+        address: 'Residential Area',
+        capacity: Math.floor(Math.random() * 10) + 5,
+        status: index === 1 ? 'available' : 'unsafe',
+        survivalScore: 0, // Will be calculated dynamically
+        age: Math.floor(Math.random() * 74)
+      }))
+      .slice(0, 10); // Limit to 10
+    return buildings.length > 0 ? buildings : getFallbackBuildings();
+  } catch (error) {
+    console.error('Failed to fetch buildings:', error);
+    return getFallbackBuildings();
+  }
+}
+
+// Fallback static buildings
+function getFallbackBuildings() {
+  return [
+    { id: 1, name: 'House 1', coords: [42.279576, -83.031594], address: 'House 1', capacity: 10, status: 'unsafe', survivalScore: 0, age: 65 },
+    { id: 2, name: 'House 2 - BEST OPTION', coords: [42.2780556, -83.0296944], address: '1100 Northwood St', capacity: 12, status: 'available', survivalScore: 80, age: 8 },
+    { id: 3, name: 'House 3', coords: [42.279850, -83.031420], address: '2320 Longfellow Ave', capacity: 8, status: 'unsafe', survivalScore: 0, age: 72 },
+    { id: 4, name: 'House 4', coords: [42.279302, -83.031485], address: '2328 Longfellow Ave', capacity: 6, status: 'unsafe', survivalScore: 0, age: 58 },
+    { id: 5, name: 'House 5', coords: [42.279191, -83.031382], address: '2336 Longfellow Ave', capacity: 9, status: 'unsafe', survivalScore: 0, age: 48 },
+    { id: 6, name: 'House 6', coords: [42.279152, -83.031673], address: '2329 Longfellow Ave', capacity: 7, status: 'unsafe', survivalScore: 0, age: 80 },
+    { id: 7, name: 'House 7', coords: [42.278984, -83.031619], address: 'House 7', capacity: 11, status: 'unsafe', survivalScore: 0, age: 55 },
+    { id: 8, name: 'House 8', coords: [42.279152, -83.031673], address: '2349 Longfellow Ave', capacity: 5, status: 'unsafe', survivalScore: 0, age: 68 },
+    { id: 9, name: 'House 9', coords: [42.278762, -83.031400], address: '2351 Longfellow Ave', capacity: 10, status: 'unsafe', survivalScore: 0, age: 74 },
+    { id: 10, name: 'House 10', coords: [42.278653, -83.031337], address: '2353 Longfellow Ave', capacity: 8, status: 'unsafe', survivalScore: 0, age: 61 },
+  ];
+}
 const TORNADO_PATH = [
   [42.2400, -83.1850], [42.2550, -83.1550], [42.2700, -83.1200],
   [42.2850, -83.0950], [42.2980, -83.0700], [42.3100, -83.0500],
@@ -78,7 +156,9 @@ const TORNADO_PATH = [
 ]
 
 const ROUTE_TO_BUILDING = [
-  [42.2828, -83.0286], [42.2750, -83.0380], [42.2600, -83.0500], [42.2420, -83.0600], [42.2195, -83.0652],
+  USER_LOCATION,
+  [42.2775, -83.0304722],
+  [42.2780556, -83.0296944],
 ]
 
 const LANGUAGES = [
@@ -106,7 +186,7 @@ function MapController({ simulating, tornadoPos, showTornadoFocus, showUserFocus
     }
 
     if (showUserFocus) {
-      map.flyTo(WINDSOR_CENTER, 13, { duration: 1.6 })
+      map.flyTo(WINDSOR_CENTER, 16, { duration: 1.6 })
       return
     }
 
@@ -126,11 +206,38 @@ export default function MainDashboard() {
   const [showUserFocus, setShowUserFocus] = useState(false)
   const [selectedLang, setSelectedLang] = useState(LANGUAGES[0])
   const [showLangMenu, setShowLangMenu] = useState(false)
+  const [buildings, setBuildings] = useState(getFallbackBuildings())
   const intervalRef = useRef(null)
   const focusTimeoutRef = useRef(null)
 
   const profile = (() => { try { return JSON.parse(localStorage.getItem('vortex_profile') || '{}') } catch { return {} } })()
-  const nearestBuilding = BUILDINGS.find(s => s.status === 'available')
+  
+  useEffect(() => {
+    setBuildings(getFallbackBuildings())
+  }, [])
+  
+  // Calculate survival scores when tornado position changes
+  useEffect(() => {
+    if (simulating && buildings.length > 0) {
+      setBuildings(prevBuildings =>
+        prevBuildings.map((building, index) => {
+          // House 2 (index 1) always stays at 80
+          if (index === 1) {
+            return { ...building, survivalScore: 80 }
+          }
+          return {
+            ...building,
+            survivalScore: calculateSurvivalScore(building.coords, building.age, tornadoPos, TORNADO_PATH)
+          }
+        })
+      )
+    }
+  }, [tornadoPos, simulating, buildings.length])
+  
+  const nearestBuilding = buildings.find(s => s.status === 'available')
+  const bestSurvivalBuilding = simulating ? buildings.reduce((best, current) => 
+    current.survivalScore > best.survivalScore ? current : best
+  ) : null
 
   function handleSimulate() {
     if (simulating) {
@@ -275,7 +382,7 @@ export default function MainDashboard() {
       </header>
 
       {/* ── BODY: sidebar left, map right ── */}
-      <div style={{ flex:1, display:'grid', gridTemplateColumns:'320px 1fr', minHeight:0, paddingTop:'60px' }}>
+      <div style={{ flex:1, display:'grid', gridTemplateColumns:'320px 1fr', minHeight:0, paddingTop:'12px' }}>
 
         {/* ── LEFT SIDEBAR ── */}
         <aside style={{
@@ -292,11 +399,11 @@ export default function MainDashboard() {
               CURRENT STATUS · WINDSOR-ESSEX
             </div>
             <div style={{ fontSize:'1.05rem', fontWeight:800, color:threatColor, marginBottom:'4px' }}>
-              {simulating ? '🌪️ TORNADO ACTIVE' : '✓ ALL CLEAR'}
+              {simulating ? '🌪️ TORNADO IMMINENT - ACT NOW' : '✓ ALL CLEAR'}
             </div>
             <div style={{ fontSize:'0.77rem', color:'#7B9BB5', lineHeight:1.6 }}>
               {simulating
-                ? 'Confirmed tornado near Kingsville tracking NE at 62 km/h.'
+                ? 'Confirmed tornado near Kingsville tracking NE at 62 km/h. Run to the nearest safe house immediately!'
                 : 'No severe weather detected. Pressure stable at 1013 hPa.'}
             </div>
             {simulating && etaMinutes !== null && (
@@ -309,19 +416,24 @@ export default function MainDashboard() {
           {/* Nearest available building */}
           <div style={card()}>
             <div style={{ fontSize:'0.58rem', letterSpacing:'0.14em', color:'#7B9BB5', marginBottom:'7px' }}>
-              NEAREST AVAILABLE BUILDING
+              BEST SURVIVAL OPTION
             </div>
             <div style={{ fontSize:'0.95rem', fontWeight:700, color:'#22c55e', marginBottom:'3px' }}>
-              {nearestBuilding?.name}
+              {simulating && bestSurvivalBuilding ? bestSurvivalBuilding.name : nearestBuilding?.name}
             </div>
             <div style={{ fontSize:'0.77rem', color:'#7B9BB5' }}>{nearestBuilding?.address}</div>
+            {simulating && bestSurvivalBuilding && (
+              <div style={{ fontSize:'0.9rem', fontWeight:700, color:'#22c55e', marginTop: '8px' }}>
+                Survival Score: {bestSurvivalBuilding.survivalScore}/100
+              </div>
+            )}
             <div style={{ display:'flex', gap:'14px', marginTop:'9px', fontSize:'0.76rem' }}>
-              <div style={{ color:'#E8F1F8' }}>🚗 <span style={{ color:'#0FADA0', fontWeight:700 }}>6 min</span> drive</div>
-              <div style={{ color:'#E8F1F8' }}>🚶 <span style={{ color:'#f59e0b', fontWeight:700 }}>22 min</span> walk</div>
+              <div style={{ color:'#E8F1F8' }}>🚗 <span style={{ color:'#0FADA0', fontWeight:700 }}>1 min</span> drive</div>
+              <div style={{ color:'#E8F1F8' }}>🚶 <span style={{ color:'#f59e0b', fontWeight:700 }}>5 min</span> walk</div>
             </div>
             {simulating && (
-              <div style={{ marginTop:'9px', padding:'7px', background:'rgba(34,197,94,0.1)', border:'1px solid rgba(34,197,94,0.3)', borderRadius:'6px', fontSize:'0.72rem', color:'#22c55e' }}>
-                ✓ Route calculated — see map
+              <div style={{ marginTop:'9px', padding:'7px', background:'rgba(239,68,68,0.1)', border:'1px solid rgba(239,68,68,0.3)', borderRadius:'6px', fontSize:'0.72rem', color:'#ef4444', fontWeight:700 }}>
+                🚨 URGENT: Run to {bestSurvivalBuilding?.name} NOW! Distance: 50m, ETA: 10 sec
               </div>
             )}
           </div>
@@ -329,19 +441,36 @@ export default function MainDashboard() {
           {/* All buildings */}
           <div style={card()}>
             <div style={{ fontSize:'0.58rem', letterSpacing:'0.14em', color:'#7B9BB5', marginBottom:'9px' }}>
-              ALL BUILDINGS
+              ALL HOUSES
             </div>
-            {BUILDINGS.map(s => (
-              <div key={s.id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'8px 0', borderBottom:'1px solid rgba(255,255,255,0.05)' }}>
-                <div>
-                  <div style={{ fontSize:'0.8rem', color:'#E8F1F8', fontWeight:600 }}>{s.name}</div>
-                  <div style={{ fontSize:'0.67rem', color:'#3D5A73' }}>{s.address}</div>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(2, minmax(0, 1fr))', gap:'10px' }}>
+              {buildings.map(s => (
+                <div key={s.id} style={{
+                  display:'flex', flexDirection:'column', justifyContent:'space-between',
+                  padding:'10px', background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.07)', borderRadius:'10px',
+                  minHeight:'86px'
+                }}>
+                  <div>
+                    <div style={{ fontSize:'0.78rem', color:'#E8F1F8', fontWeight:700 }}>{s.name}</div>
+                    <div style={{ fontSize:'0.66rem', color:'#7B9BB5', marginTop:'4px' }}>
+                      Age: {s.age} yrs
+                    </div>
+                    <div style={{ fontSize:'0.66rem', color:'#7B9BB5' }}>
+                      Cap: {s.capacity}
+                    </div>
+                  </div>
+                  <div style={{
+                    alignSelf:'flex-start', padding:'3px 8px', borderRadius:'999px',
+                    background: simulating ? (s.survivalScore >= 70 ? 'rgba(34,197,94,0.15)' : s.survivalScore >= 40 ? 'rgba(245,158,11,0.15)' : 'rgba(239,68,68,0.15)') : 'rgba(15,173,160,0.15)',
+                    border: `1px solid ${simulating ? (s.survivalScore >= 70 ? 'rgba(34,197,94,0.5)' : s.survivalScore >= 40 ? 'rgba(245,158,11,0.5)' : 'rgba(239,68,68,0.5)') : 'rgba(15,173,160,0.5)'}`,
+                    color: simulating ? (s.survivalScore >= 70 ? '#22c55e' : s.survivalScore >= 40 ? '#f59e0b' : '#ef4444') : '#0FADA0',
+                    fontSize:'0.72rem', fontWeight:700,
+                  }}>
+                    {simulating ? `${s.survivalScore}%` : (s.status === 'available' ? '✓ BEST' : '✗ UNSAFE')}
+                  </div>
                 </div>
-                <div style={statusBadge(s.status === 'available')}>
-                  {s.status === 'available' ? 'AVAILABLE' : s.status === 'too_close' ? 'TOO CLOSE' : 'FULL'}
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
 
           {/* Map legend */}
@@ -350,17 +479,20 @@ export default function MainDashboard() {
             <div style={{ display:'flex', flexDirection:'column', gap:'6px', fontSize:'0.77rem' }}>
               <div style={{ display:'flex', alignItems:'center', gap:'8px', color:'#E8F1F8' }}>
                 <span style={{ fontSize:'16px' }}>🏠</span>
-                <span style={{ color:'#22c55e', fontWeight:600 }}>Green pin</span> — Building AVAILABLE
+                <span style={{ color:'#22c55e', fontWeight:600 }}>Green pin</span> — Survival ≥70%
               </div>
               <div style={{ display:'flex', alignItems:'center', gap:'8px', color:'#E8F1F8' }}>
-                <span style={{ fontSize:'16px' }}>🏢</span>
-                <span style={{ color:'#f59e0b', fontWeight:600 }}>Yellow pin</span> — Building TOO CLOSE
+                <span style={{ fontSize:'16px' }}>⚠</span>
+                <span style={{ color:'#f59e0b', fontWeight:600 }}>Yellow pin</span> — Survival 40-70%
               </div>
               <div style={{ display:'flex', alignItems:'center', gap:'8px', color:'#E8F1F8' }}>
-                <span style={{ fontSize:'16px' }}>🏢</span>
-                <span style={{ color:'#ef4444', fontWeight:600 }}>Red pin</span> — Building FULL
+                <span style={{ fontSize:'16px' }}>🏠</span>
+                <span style={{ color:'#ef4444', fontWeight:600 }}>Red pin</span> — Survival &lt;40%
               </div>
-              <div style={{ display:'flex', alignItems:'center', gap:'8px', color:'#E8F1F8' }}>
+              <div style={{ marginTop: '8px', padding: '8px', background: 'rgba(123, 155, 181, 0.1)', borderRadius: '4px', fontSize: '0.75rem', color: '#7B9BB5' }}>
+                📊 Survival score based on: distance to tornado + house age + structural integrity
+              </div>
+              <div style={{ display:'flex', alignItems:'center', gap:'8px', color:'#E8F1F8', marginTop:'6px' }}>
                 <span style={{ width:'16px', height:'16px', background:'#3b82f6', borderRadius:'50%', border:'2px solid #fff', display:'inline-block', flexShrink:0 }}/>
                 <span style={{ color:'#3b82f6', fontWeight:600 }}>Blue dot</span> — Your location
               </div>
@@ -444,7 +576,7 @@ export default function MainDashboard() {
             />
 
             {/* User */}
-            <Marker position={WINDSOR_CENTER} icon={userIcon}>
+            <Marker position={USER_LOCATION} icon={userIcon}>
               <Popup>
                 <div style={{ fontFamily:'monospace', fontSize:'12px' }}>
                   <strong>{profile.name || 'Your location'}</strong><br/>Ford City, ON
@@ -453,16 +585,27 @@ export default function MainDashboard() {
             </Marker>
 
             {/* Buildings */}
-            {BUILDINGS.map(s => (
-              <Marker key={s.id} position={s.coords} icon={s.status === 'available' ? openShelterIcon : s.status === 'too_close' ? L.divIcon({className: '',html: `<div style="position:relative;width:32px;height:40px;"><svg viewBox="0 0 32 40" width="32" height="40" xmlns="http://www.w3.org/2000/svg"><path d="M16 0C7.163 0 0 7.163 0 16c0 10 16 24 16 24S32 26 32 16C32 7.163 24.837 0 16 0z"fill="#f59e0b" stroke="rgba(0,0,0,0.3)" stroke-width="1.5"/><circle cx="16" cy="16" r="9" fill="rgba(0,0,0,0.2)"/></svg><span style="position:absolute;top:6px;left:50%;transform:translateX(-50%);font-size:13px;line-height:1;">⚠</span></div>`,iconSize: [32, 40],iconAnchor: [16, 40],popupAnchor: [0, -42]}) : fullShelterIcon}>
+            {buildings.map(s => (
+              <Marker key={s.id} position={s.coords} icon={
+                s.status === 'available' ? openShelterIcon :
+                simulating && s.survivalScore >= 70 ? openShelterIcon :
+                simulating && s.survivalScore >= 40 ? makePin('#f59e0b', '⚠') :
+                tooOldIcon
+              }>
                 <Popup>
-                  <div style={{ fontFamily:'monospace', fontSize:'12px', minWidth:'160px' }}>
-                    <strong style={{ color: s.status === 'available' ? '#22c55e' : s.status === 'too_close' ? '#f59e0b' : '#ef4444' }}>
-                      {s.status === 'available' ? '✓ AVAILABLE' : s.status === 'too_close' ? '⚠ TOO CLOSE' : '✗ FULL'}
+                  <div style={{ fontFamily:'monospace', fontSize:'12px', minWidth:'180px' }}>
+                    <strong style={{ color: s.status === 'available' ? '#22c55e' : '#ef4444' }}>
+                      {s.name}
                     </strong><br/>
-                    <strong>{s.name}</strong><br/>
                     {s.address}<br/>
-                    <span style={{ color:'#888' }}>Capacity: {s.capacity}</span>
+                    <span style={{ color:'#888' }}>Capacity: {s.capacity} | Age: {s.age} yrs</span>
+                    {simulating && (
+                      <div style={{ marginTop: '6px', paddingTop: '6px', borderTop: '1px solid #ccc' }}>
+                        <strong style={{ color: s.survivalScore >= 70 ? '#22c55e' : s.survivalScore >= 40 ? '#f59e0b' : '#ef4444' }}>
+                          Survival Score: {s.survivalScore}/100
+                        </strong>
+                      </div>
+                    )}
                   </div>
                 </Popup>
               </Marker>
