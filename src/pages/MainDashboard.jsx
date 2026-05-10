@@ -186,7 +186,7 @@ function MapController({ simulating, tornadoPos, showTornadoFocus, showUserFocus
     }
 
     if (showUserFocus) {
-      map.flyTo(WINDSOR_CENTER, 16, { duration: 1.6 })
+      map.flyTo(USER_LOCATION, 18, { duration: 1.6 })
       return
     }
 
