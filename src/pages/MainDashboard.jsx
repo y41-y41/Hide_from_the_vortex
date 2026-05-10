@@ -67,8 +67,8 @@ const WINDSOR_CENTER = [42.2828, -83.0286]
 
 const BUILDINGS = [
   { id: 1, name: 'Lasalle Civic Centre', coords: [42.2195, -83.0652], address: '5950 Malden Rd', capacity: 850, status: 'available' },
-  { id: 2, name: 'St. Clair College',    coords: [42.3210, -82.9600], address: '2000 Talbot Rd W', capacity: 600, status: 'full' },
-  { id: 3, name: 'WFCU Centre',          coords: [42.2600, -83.0700], address: '8787 McHugh St',   capacity: 1200, status: 'full' },
+  { id: 2, name: 'University of Windsor', coords: [42.3080, -83.0650], address: '401 Sunset Ave', capacity: 600, status: 'full' },
+  { id: 3, name: 'Windsor Regional Hospital', coords: [42.3065, -83.0440], address: '1030 Ouellette Ave', capacity: 1200, status: 'too_close' },
 ]
 const TORNADO_PATH = [
   [42.2400, -83.1850], [42.2550, -83.1550], [42.2700, -83.1200],
@@ -338,7 +338,7 @@ export default function MainDashboard() {
                   <div style={{ fontSize:'0.67rem', color:'#3D5A73' }}>{s.address}</div>
                 </div>
                 <div style={statusBadge(s.status === 'available')}>
-                  {s.status === 'available' ? 'OPEN' : 'FULL'}
+                  {s.status === 'available' ? 'AVAILABLE' : s.status === 'too_close' ? 'TOO CLOSE' : 'FULL'}
                 </div>
               </div>
             ))}
@@ -351,6 +351,10 @@ export default function MainDashboard() {
               <div style={{ display:'flex', alignItems:'center', gap:'8px', color:'#E8F1F8' }}>
                 <span style={{ fontSize:'16px' }}>🏠</span>
                 <span style={{ color:'#22c55e', fontWeight:600 }}>Green pin</span> — Building AVAILABLE
+              </div>
+              <div style={{ display:'flex', alignItems:'center', gap:'8px', color:'#E8F1F8' }}>
+                <span style={{ fontSize:'16px' }}>🏢</span>
+                <span style={{ color:'#f59e0b', fontWeight:600 }}>Yellow pin</span> — Building TOO CLOSE
               </div>
               <div style={{ display:'flex', alignItems:'center', gap:'8px', color:'#E8F1F8' }}>
                 <span style={{ fontSize:'16px' }}>🏢</span>
@@ -450,11 +454,11 @@ export default function MainDashboard() {
 
             {/* Buildings */}
             {BUILDINGS.map(s => (
-              <Marker key={s.id} position={s.coords} icon={s.status === 'available' ? openShelterIcon : fullShelterIcon}>
+              <Marker key={s.id} position={s.coords} icon={s.status === 'available' ? openShelterIcon : s.status === 'too_close' ? L.divIcon({className: '',html: `<div style="position:relative;width:32px;height:40px;"><svg viewBox="0 0 32 40" width="32" height="40" xmlns="http://www.w3.org/2000/svg"><path d="M16 0C7.163 0 0 7.163 0 16c0 10 16 24 16 24S32 26 32 16C32 7.163 24.837 0 16 0z"fill="#f59e0b" stroke="rgba(0,0,0,0.3)" stroke-width="1.5"/><circle cx="16" cy="16" r="9" fill="rgba(0,0,0,0.2)"/></svg><span style="position:absolute;top:6px;left:50%;transform:translateX(-50%);font-size:13px;line-height:1;">⚠</span></div>`,iconSize: [32, 40],iconAnchor: [16, 40],popupAnchor: [0, -42]}) : fullShelterIcon}>
                 <Popup>
                   <div style={{ fontFamily:'monospace', fontSize:'12px', minWidth:'160px' }}>
-                    <strong style={{ color: s.status === 'available' ? '#22c55e' : '#ef4444' }}>
-                      {s.status === 'available' ? '✓ AVAILABLE' : '✗ FULL'}
+                    <strong style={{ color: s.status === 'available' ? '#22c55e' : s.status === 'too_close' ? '#f59e0b' : '#ef4444' }}>
+                      {s.status === 'available' ? '✓ AVAILABLE' : s.status === 'too_close' ? '⚠ TOO CLOSE' : '✗ FULL'}
                     </strong><br/>
                     <strong>{s.name}</strong><br/>
                     {s.address}<br/>
