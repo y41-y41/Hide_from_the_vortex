@@ -25,8 +25,8 @@ function calcScore(profile) {
 }
 
 function calculateEvacuation(profile) {
-  const distance = 6.2 // km to local building estimate
-  let speed = profile.travelMode === 'car' ? 45 : 5 // km/h
+  const distance = 6.2 
+  let speed = profile.travelMode === 'car' ? 45 : 5 
   if (profile.mobility === 'wheelchair') speed = 3.2
   if (profile.mobility === 'elderly')    speed = Math.min(speed, 4.5)
   if (profile.age > 65)                  speed = Math.max(2.8, speed - 1.2)

@@ -5,7 +5,6 @@ import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
-// ── CUSTOM ICONS ────────────────────────────────────────────────
 function makePin(color, emoji) {
   return L.divIcon({
     className: '',
@@ -30,15 +29,10 @@ function makePin(color, emoji) {
   })
 }
 
-// Green pin for available buildings
 const openShelterIcon = makePin('#22c55e', '�')
-// Red pin for full buildings
 const fullShelterIcon = makePin('#ef4444', '🏠')
-// Red pin for too old houses
 const tooOldIcon = makePin('#ef4444', 'OLD')
-// Red pin for too close houses
 const tooCloseIcon = makePin('#ef4444', '⚠')
-// Default blue Leaflet-style pin for user
 const userIcon = L.divIcon({
   className: '',
   html: `<div style="
@@ -52,7 +46,6 @@ const userIcon = L.divIcon({
   iconAnchor: [11, 11],
   popupAnchor: [0, -14],
 })
-// Tornado emoji marker
 const tornadoIcon = L.divIcon({
   className: '',
   html: `<div style="position:relative; width:76px; height:76px; display:flex; align-items:center; justify-content:center;">
@@ -66,38 +59,29 @@ const tornadoIcon = L.divIcon({
   popupAnchor: [0, -40],
 })
 
-// ── DATA ────────────────────────────────────────────────────────
 const WINDSOR_CENTER = [42.2828, -83.0286]
 const USER_LOCATION = [42.27942, -83.03170] // User location
 
-// Calculate survival score based on distance to tornado, house age, and structural integrity
 function calculateSurvivalScore(houseCoords, houseAge, tornadoPos, tornadoPath) {
-  // Distance from house to tornado
   const [houseLat, houseLon] = houseCoords
   const tornadoCoord = tornadoPath[tornadoPos] || tornadoPath[0]
   const [tornadoLat, tornadoLon] = tornadoCoord
   
-  // Haversine distance (approximate in km)
   const dLat = (tornadoLat - houseLat) * 111
   const dLon = (tornadoLon - houseLon) * 111 * Math.cos((houseLat * Math.PI) / 180)
   const distToTornado = Math.sqrt(dLat * dLat + dLon * dLon) * 1000 // meters
   
-  // Distance score: 0-25 points (farther is better, max at 2km+)
   const distScore = Math.min(25, (distToTornado / 2000) * 25)
   
-  // Age score: 0-25 points (newer buildings safer, built after 1980 gets full points)
   const buildingYear = 1950 + Math.floor(Math.random() * 74) // Random 1950-2024 for demo
   const ageScore = Math.max(0, Math.min(25, ((2024 - buildingYear) / 40) * 25))
   
-  // Structural integrity: 0-20 points (randomized for demo, could be from inspection data)
   const structuralScore = Math.random() * 20
   
   const rawScore = Math.round(distScore + (25 - ageScore) + structuralScore)
-  // Cap between 30 and 70 for normal houses
   return Math.max(30, Math.min(70, rawScore))
 }
 
-// Function to fetch nearby buildings from OpenStreetMap
 async function fetchNearbyBuildings(center, radius = 500) {
   const [lat, lon] = center;
   const overpassQuery = `
@@ -122,10 +106,10 @@ async function fetchNearbyBuildings(center, radius = 500) {
         address: 'Residential Area',
         capacity: Math.floor(Math.random() * 10) + 5,
         status: index === 1 ? 'available' : 'unsafe',
-        survivalScore: 0, // Will be calculated dynamically
+        survivalScore: 0, 
         age: Math.floor(Math.random() * 74)
       }))
-      .slice(0, 10); // Limit to 10
+      .slice(0, 10); 
     return buildings.length > 0 ? buildings : getFallbackBuildings();
   } catch (error) {
     console.error('Failed to fetch buildings:', error);
@@ -133,7 +117,6 @@ async function fetchNearbyBuildings(center, radius = 500) {
   }
 }
 
-// Fallback static buildings
 function getFallbackBuildings() {
   return [
     { id: 1, name: 'House 1', coords: [42.279576, -83.031594], address: 'House 1', capacity: 10, status: 'unsafe', survivalScore: 0, age: 65 },
@@ -170,7 +153,6 @@ const LANGUAGES = [
   { code: 'es', label: 'Español',  native: 'ALERTA: Tornado activo detectado',  dir: 'ltr' },
 ]
 
-// ── MAP CONTROLLER ──────────────────────────────────────────────
 function MapController({ simulating, tornadoPos, showTornadoFocus, showUserFocus }) {
   const map = useMap()
   useEffect(() => {
@@ -196,7 +178,6 @@ function MapController({ simulating, tornadoPos, showTornadoFocus, showUserFocus
   return null
 }
 
-// ── COMPONENT ───────────────────────────────────────────────────
 export default function MainDashboard() {
   const navigate = useNavigate()
   const [simulating, setSimulating]     = useState(false)
@@ -216,12 +197,11 @@ export default function MainDashboard() {
     setBuildings(getFallbackBuildings())
   }, [])
   
-  // Calculate survival scores when tornado position changes
   useEffect(() => {
     if (simulating && buildings.length > 0) {
       setBuildings(prevBuildings =>
         prevBuildings.map((building, index) => {
-          // House 2 (index 1) always stays at 80
+          
           if (index === 1) {
             return { ...building, survivalScore: 80 }
           }
@@ -648,7 +628,6 @@ export default function MainDashboard() {
   )
 }
 
-// ── STYLE HELPERS ────────────────────────────────────────────────
 function navBtn(accentColor) {
   return {
     background: accentColor ? `rgba(${hexToRgb(accentColor)},0.1)` : 'transparent',

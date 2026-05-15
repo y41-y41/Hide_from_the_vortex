@@ -1,4 +1,4 @@
-/* ── VORTEX THEME ── */
+
 :root {
   --bg-deep:       #0B1E33;
   --bg-card:       #112240;
@@ -32,12 +32,11 @@ body {
   overflow-x: hidden;
 }
 
-/* scrollbar */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg-deep); }
 ::-webkit-scrollbar-thumb { background: var(--teal-dim); border-radius: 3px; }
 
-/* shared card */
+
 .card {
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -45,7 +44,7 @@ body {
   padding: 1.5rem;
 }
 
-/* shared button */
+
 .btn-primary {
   background: var(--teal);
   color: #0B1E33;
@@ -61,7 +60,6 @@ body {
 .btn-primary:hover  { background: #14C9BB; }
 .btn-primary:active { transform: scale(0.97); }
 
-/* form inputs */
 .field {
   display: flex;
   flex-direction: column;
@@ -90,7 +88,6 @@ body {
 .field select:focus { border-color: var(--teal); }
 .field select option { background: var(--bg-elevated); }
 
-/* arabic display text */
 .arabic-label {
   font-size: 1.4rem;
   color: var(--gold);
@@ -98,7 +95,7 @@ body {
   opacity: 0.85;
 }
 
-/* Language selector */
+
 .language-selector {
   position: relative;
 }
@@ -123,7 +120,6 @@ body {
   background: var(--bg-elevated);
 }
 
-/* Flashing translations */
 .flashing-translations {
   animation: flash 3s ease-in-out;
 }
@@ -132,7 +128,7 @@ body {
   50% { opacity: 0; }
 }
 
-/* Main Dashboard */
+
 .main-dashboard {
   min-height: 100vh;
 }
@@ -159,7 +155,6 @@ body {
   padding: 1.5rem;
 }
 
-/* SOS Page */
 .sos-page {
   min-height: 100vh;
 }

@@ -1,9 +1,4 @@
 // HumanoidFigure.jsx
-// Props:
-//   mobility   : "walking" | "wheelchair" | "elderly" | "child"
-//   score      : 0-100 (survivability %)
-//   animate    : bool (pulse when danger)
-
 export default function HumanoidFigure({ mobility = 'walking', score = 80, animate = false }) {
   // color shifts green → yellow → orange → red as score drops
   const color =
