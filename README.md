@@ -2,7 +2,7 @@
 
 > 🌪️ Third Best Overall — MasseyHacks XII
 
-A tornado evacuation demo app that shows you which nearby building to run to and how to get there, based on who you are.
+A tornado evacuation demo app that shows you which nearby building to run to and how to get there, based on who you are and where you are.
 
 ---
 
