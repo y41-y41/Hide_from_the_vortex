@@ -41,7 +41,7 @@ When the tornado simulation starts, the app:
 ### Installation
 
 ```bash
-git clone https://github.com/y41-y41/HM-weather.git
+git clone https://github.com/y41-y41/Hide_from_the_vortex.git
 npm install
 npm run dev
 ```
