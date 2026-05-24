@@ -23,7 +23,7 @@ When the tornado simulation starts, the app:
 ## Features
 
 - **Tornado simulation**  animated tornado tracking along a preset path toward Windsor
-- **Building safety scoring** —rates the 10 demo houses based on estimated age, distance to tornado, and structural integrity
+- **Building safety scoring** rates the 10 demo houses based on estimated age, distance to tornado, and structural integrity
 - **Personalized routing** factors in mobility type, age, height, weight, and travel mode
 - **SOS page** simulates sending your profile and location to emergency services via Morse code
 - **Survivability score** updates in real time as the tornado moves closer
