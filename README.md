@@ -13,7 +13,7 @@ When the tornado simulation starts, the app:
 - Scores a set of pre-selected houses by estimated age and structural safety
 - Flags which buildings are safe to hide in vs ones to avoid
 - Shows a live evacuation route to the best option
-- Adjusts recommendations based on your personal profile — wheelchair users, elderly, children, and other mobility factors all affect the suggested path and score
+- Adjusts recommendations based on your personal profile  wheelchair users, elderly, children, and other mobility factors all affect the suggested path and score
 - Sends your profile info and location to a simulated emergency contact list via the SOS page, displayed as Morse code
 
 > **This is a demo.** It only works for a fixed set of 10 houses in the Ford City area of Windsor, Ontario. Building data is estimated, not pulled from a live source.
@@ -22,12 +22,12 @@ When the tornado simulation starts, the app:
 
 ## Features
 
-- **Tornado simulation** — animated tornado tracking along a preset path toward Windsor
-- **Building safety scoring** — rates the 10 demo houses based on estimated age, distance to tornado, and structural integrity
-- **Personalized routing** — factors in mobility type, age, height, weight, and travel mode
-- **SOS page** — simulates sending your profile and location to emergency services via Morse code
-- **Survivability score** — updates in real time as the tornado moves closer
-- **Multi-language alert banner** — scrolls the warning in English, French, Arabic, Mandarin, Filipino, and Spanish
+- **Tornado simulation**  animated tornado tracking along a preset path toward Windsor
+- **Building safety scoring** —rates the 10 demo houses based on estimated age, distance to tornado, and structural integrity
+- **Personalized routing** factors in mobility type, age, height, weight, and travel mode
+- **SOS page** simulates sending your profile and location to emergency services via Morse code
+- **Survivability score** updates in real time as the tornado moves closer
+- **Multi-language alert banner** scrolls the warning in English, French, Arabic, Mandarin, Filipino, and Spanish
 
 ---
 
