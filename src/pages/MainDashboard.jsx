@@ -263,16 +263,10 @@ export default function MainDashboard() {
   const etaMinutes  = simulating ? Math.max(0, 18 - timeElapsed * 2) : null
 
   return (
-    <div style={{ minHeight:'100vh', display:'flex', flexDirection:'column', background:'#0B1E33', fontFamily:"'Segoe UI', system-ui, sans-serif" }}>
+    <div className="page-shell main-dashboard">
 
       {/* ── HEADER ── */}
-      <header style={{
-        padding:'0.75rem 1.25rem',
-        background:'#0D2035',
-        borderBottom:'1px solid rgba(15,173,160,0.2)',
-        display:'flex', alignItems:'center', justifyContent:'space-between',
-        zIndex:1000, position:'relative',
-      }}>
+      <header className="page-header">
         <div style={{ display:'flex', alignItems:'center', gap:'14px' }}>
           {/* Logo */}
           <div>
@@ -362,16 +356,10 @@ export default function MainDashboard() {
       </header>
 
       {/* ── BODY: sidebar left, map right ── */}
-      <div style={{ flex:1, display:'grid', gridTemplateColumns:'320px 1fr', minHeight:0, paddingTop:'12px' }}>
+      <div className="dashboard-content">
 
         {/* ── LEFT SIDEBAR ── */}
-        <aside style={{
-          background:'#0D2035',
-          borderRight:'1px solid rgba(15,173,160,0.15)',
-          display:'flex', flexDirection:'column',
-          padding:'1rem', gap:'0.85rem',
-          overflowY:'auto',
-        }}>
+        <aside className="dashboard-sidebar">
 
           {/* Status card */}
           <div style={card(threatColor)}>
@@ -538,10 +526,10 @@ export default function MainDashboard() {
         </aside>
 
         {/* ── MAP (right, fills remaining space) ── */}
-        <div style={{ position:'relative' }}>
+        <div className="map-wrapper">
           <MapContainer
             center={WINDSOR_CENTER} zoom={12}
-            style={{ width:'100%', height:'100%', minHeight:'500px' }}
+            style={{ width:'100%', height:'100%' }}
             zoomControl={false}
           >
             <TileLayer
@@ -609,7 +597,7 @@ export default function MainDashboard() {
           </MapContainer>
 
           {/* Simulate button */}
-          <div style={{ position:'absolute', bottom:'24px', left:'50%', transform:'translateX(-50%)', zIndex:1000 }}>
+          <div style={{ position:'absolute', bottom:'24px', left:'50%', transform:'translateX(-50%)', zIndex:1000, width: 'min(100%, 420px)', padding: '0 1rem' }}>
             <button onClick={handleSimulate} style={{
               background: simulating ? 'rgba(239,68,68,0.92)' : 'rgba(15,173,160,0.92)',
               border:'none', borderRadius:'30px', color:'#fff',

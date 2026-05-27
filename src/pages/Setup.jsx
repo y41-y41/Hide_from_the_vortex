@@ -75,25 +75,15 @@ export default function Setup() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className="page-shell setup-page">
       {/* ── HEADER ── */}
-      <header style={{
-        padding: '1.25rem 2rem',
-        borderBottom: '1px solid rgba(15,173,160,0.15)',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-      }}>
-        <div>
-          <div style={{ fontSize: '0.65rem', letterSpacing: '0.2em', color: '#7B9BB5', marginBottom: '2px' }}>
-            MASSEYHACKS XII · OCEAN COMMUNITY TRACK
-          </div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '0.1em', color: '#0FADA0' }}>
-            VORTEX
-          </div>
+      <header className="page-header">
+        <div className="brand">
+          <div className="label">MASSEYHACKS XII · OCEAN COMMUNITY TRACK</div>
+          <div className="title">VORTEX</div>
         </div>
         <div className="language-selector">
-          <button onClick={() => setShowLanguageMenu(!showLanguageMenu)}>
+          <button className="button-secondary" onClick={() => setShowLanguageMenu(!showLanguageMenu)}>
             SELECT LANGUAGE ({selectedLanguage})
           </button>
           {showLanguageMenu && (
@@ -109,19 +99,10 @@ export default function Setup() {
       </header>
 
       {/* ── BODY ── */}
-      <div style={{
-        flex: 1,
-        display: 'grid',
-        gridTemplateColumns: '1fr 340px',
-        gap: '1.5rem',
-        padding: '2rem',
-        maxWidth: '1100px',
-        margin: '0 auto',
-        width: '100%',
-      }}>
+      <div className="page-content">
 
         {/* LEFT — form */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <div className="status-panel">
 
           <div>
             <h1 style={{ fontSize: '1.3rem', fontWeight: 700, marginBottom: '0.35rem' }}>
@@ -132,8 +113,8 @@ export default function Setup() {
             </p>
           </div>
 
-          <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 1rem' }}>
+          <div className="card">
+            <div className="info-grid cols-2">
               <div className="field">
                 <label>Your name</label>
                 <input
@@ -152,7 +133,7 @@ export default function Setup() {
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 1rem' }}>
+            <div className="info-grid cols-2">
               <div className="field">
                 <label>Height (cm)</label>
                 <input
@@ -211,18 +192,9 @@ export default function Setup() {
                 ].map(([key, label]) => (
                   <button
                     key={key}
+                    type="button"
                     onClick={() => toggleDisability(key)}
-                    style={{
-                      background: profile.disabilities.includes(key) ? 'rgba(15,173,160,0.2)' : 'transparent',
-                      border: `1px solid ${profile.disabilities.includes(key) ? '#0FADA0' : '#1A3354'}`,
-                      color: profile.disabilities.includes(key) ? '#0FADA0' : '#7B9BB5',
-                      borderRadius: '6px',
-                      padding: '5px 12px',
-                      fontSize: '0.8rem',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                    }}
-                  >
+                    className={`form-chip ${profile.disabilities.includes(key) ? 'active' : ''}`}>
                     {label}
                   </button>
                 ))}
@@ -231,7 +203,8 @@ export default function Setup() {
           </div>
 
           <button
-            className="btn-primary"
+            type="button"
+            className="button-primary"
             onClick={handleSubmit}
             disabled={!profile.name || !profile.height || !profile.weight}
             style={{ opacity: (!profile.name || !profile.height || !profile.weight) ? 0.4 : 1 }}
@@ -250,9 +223,9 @@ export default function Setup() {
         </div>
 
         {/* RIGHT — humanoid figure */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', paddingTop: '1rem' }}>
+        <div className="status-panel" style={{ alignItems: 'center', paddingTop: '1rem' }}>
           <div className="card" style={{ width: '100%', textAlign: 'center' }}>
-            <div style={{ fontSize: '0.65rem', letterSpacing: '0.15em', color: '#7B9BB5', marginBottom: '1rem' }}>
+            <div style={{ fontSize: '0.75rem', letterSpacing: '0.12em', color: '#7B9BB5', marginBottom: '1rem' }}>
               BUILDING ACCESS PREVIEW
             </div>
 
@@ -297,13 +270,13 @@ export default function Setup() {
           </div>
 
           {/* score explanation */}
-          <div className="card" style={{ width: '100%', fontSize: '0.78rem', color: '#7B9BB5', lineHeight: 1.8 }}>
-            <div style={{ fontSize: '0.65rem', letterSpacing: '0.12em', marginBottom: '0.75rem' }}>
+          <div className="card" style={{ width: '100%' }}>
+            <div style={{ fontSize: '0.75rem', letterSpacing: '0.12em', marginBottom: '0.75rem' }}>
               HOW THE SCORE WORKS
             </div>
-            The AI estimates how likely you are to reach a safe building based on <span style={{color:'#0FADA0'}}>your profile</span>,{' '}
-            <span style={{color:'#0FADA0'}}>travel mode</span>, <span style={{color:'#0FADA0'}}>time to building</span>, and{' '}
-            <span style={{color:'#0FADA0'}}>evacuation difficulty</span>. Higher score = faster access. Lower score = the system recommends sheltering in place.
+            <p style={{ fontSize: '0.9rem', color: '#7B9BB5', lineHeight: 1.8 }}>
+              The AI estimates how likely you are to reach a safe building based on <span style={{color:'#0FADA0'}}>your profile</span>, <span style={{color:'#0FADA0'}}>travel mode</span>, <span style={{color:'#0FADA0'}}>time to building</span>, and <span style={{color:'#0FADA0'}}>evacuation difficulty</span>. Higher score = faster access. Lower score = the system recommends sheltering in place.
+            </p>
           </div>
         </div>
       </div>

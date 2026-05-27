@@ -33,11 +33,14 @@ export default function SOSPage() {
   }, [sendingIndex])
 
   return (
-    <div className="sos-page">
-      <header>
-        <h1>SOS Broadcast</h1>
+    <div className="page-shell sos-page">
+      <header className="page-header">
+        <div className="brand">
+          <div className="label">EMERGENCY BROADCAST</div>
+          <div className="title">SOS SIGNAL</div>
+        </div>
         <div className="language-selector">
-          <button onClick={() => setShowLanguageMenu(!showLanguageMenu)}>
+          <button className="button-secondary" onClick={() => setShowLanguageMenu(!showLanguageMenu)}>
             SELECT LANGUAGE ({selectedLanguage})
           </button>
           {showLanguageMenu && (
@@ -52,7 +55,7 @@ export default function SOSPage() {
         </div>
       </header>
 
-      <div className="content">
+      <div className="page-content">
         <div className="signal-tower">
           <svg width="200" height="300" viewBox="0 0 200 300">
             <rect x="80" y="200" width="40" height="100" fill="#666" />
@@ -73,7 +76,7 @@ export default function SOSPage() {
           <p>SOS: ··· --- ···</p>
         </div>
 
-        <div className="recipients">
+        <div className="panel recipients">
           <h2>Recipients</h2>
           <ul>
             {recipients.map((recipient, index) => (
@@ -84,9 +87,9 @@ export default function SOSPage() {
           </ul>
         </div>
 
-        <div className="terminal-log">
+        <div className="panel terminal-log">
           <h2>Transmission Log</h2>
-          <div className="log">
+          <div className="log log-box">
             {logs.map((log, index) => <p key={index}>{log}</p>)}
           </div>
         </div>
