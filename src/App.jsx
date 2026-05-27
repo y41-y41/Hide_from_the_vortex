@@ -5,12 +5,12 @@ import SOSPage from './pages/SOSPage.jsx'
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/Hide_from_the_vortex">
       <Routes>
         <Route path="/"          element={<MainDashboard />} />
         <Route path="/profile"   element={<Setup />} />
         <Route path="/sos"       element={<SOSPage />} />
-        <Route path="*"          element={<Navigate to="/" />} />
+        <Route path="*"          element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   )
